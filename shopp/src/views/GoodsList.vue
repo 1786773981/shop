@@ -113,6 +113,31 @@
         </div>
       </div>
     </div>
+    <!-- 登录遮罩框 -->
+    <Modal :isMdShow="isshow" @close="closeModal"></Modal>
+    <!-- 加入购物车弹框1 -->
+    <Modal :isMdShow="isCartErrorShowFlag" @close="isCartErrorShowFlag=false">
+      <template v-slot:main>请先登录，否则无法加入到购物车中!</template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" @click="isCartErrorShowFlag=false">关闭</a>
+      </template>
+    </Modal>
+    <!-- 加入购物车弹框2 -->
+    <Modal :isMdShow="isCartOkShowFlag" @close="isCartOkShowFlag=false">
+      <template v-slot:main>
+        <svg class="icon-status-ok">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-status-ok" />
+        </svg>
+        <span>加入购物车成!</span>
+      </template>
+      <template v-slot:btnGroup>
+        <a class="btn btn--m" href="javascript:;" @click="isCartOkShowFlag = false">继续购物</a>
+        <router-link class="btn btn--m btn--red" href="javascript:;" to="/cart">查看购物车</router-link>
+      </template>
+    </Modal> 
+    <!-- 加入购物车按钮 -->
+    <input type="button" value="加入购物车弹框1" @click="isCartErrorShowFlag=true" />
+    <input type="button" value="加入购物车弹框2" @click="isCartOkShowFlag=true" />
     <Footer></Footer>
   </div>
 </template>
@@ -126,12 +151,29 @@ import "@/assets/css/product.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Bread from "@/components/Bread";
+import Modal from "@/components/Modal";
 
 export default {
+  data() {
+    return {
+      // 登录遮罩框
+      isshow: false,
+      // 加入购物车弹框遮1
+      isCartErrorShowFlag: false,
+      // 加入购物车弹框遮2
+      isCartOkShowFlag: false
+    };
+  },
   components: {
     Header,
     Footer,
-    Bread
+    Bread,
+    Modal
+  },
+  methods: {
+    closeModal() {
+      this.isshow = false;
+    }
   }
 };
 </script>
