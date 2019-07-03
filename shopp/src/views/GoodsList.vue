@@ -51,57 +51,16 @@
           <div class="accessory-list-wrap">
             <div class="accessory-list col-4">
               <ul>
-                <li>
+                <!-- li标签通过接口数据遍历渲染 -->
+                <li v-for="(goods,index) in goodslist" :key="index">
                   <div class="pic">
                     <a href="#">
-                      <img src="static/9.jpg" alt />
+                      <img :src="goods.img2" alt />
                     </a>
                   </div>
                   <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">999</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="pic">
-                    <a href="#">
-                      <img src="static/3.jpg" alt />
-                    </a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">1000</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="pic">
-                    <a href="#">
-                      <img src="static/7.jpg" alt />
-                    </a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">500</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="pic">
-                    <a href="#">
-                      <img src="static/6.jpg" alt />
-                    </a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">2499</div>
+                    <div class="name">{{goods.title}}</div>
+                    <div class="price">{{goods.price}}</div>
                     <div class="btn-area">
                       <a href="javascript:;" class="btn btn--m">加入购物车</a>
                     </div>
@@ -134,7 +93,7 @@
         <a class="btn btn--m" href="javascript:;" @click="isCartOkShowFlag = false">继续购物</a>
         <router-link class="btn btn--m btn--red" href="javascript:;" to="/cart">查看购物车</router-link>
       </template>
-    </Modal> 
+    </Modal>
     <!-- 加入购物车按钮 -->
     <input type="button" value="加入购物车弹框1" @click="isCartErrorShowFlag=true" />
     <input type="button" value="加入购物车弹框2" @click="isCartOkShowFlag=true" />
@@ -152,10 +111,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Bread from "@/components/Bread";
 import Modal from "@/components/Modal";
+import axios from "axios";
 
 export default {
+  created() {
+    this.initdata()
+  },
   data() {
     return {
+      goodslist: [],
       // 登录遮罩框
       isshow: false,
       // 加入购物车弹框遮1
@@ -173,6 +137,19 @@ export default {
   methods: {
     closeModal() {
       this.isshow = false;
+    },
+    initdata() {
+      axios({
+        method: "get",
+        url: "http://118.31.9.103//api/goods/index"
+      })
+        .then(res => {
+          this.goodslist = res.data.data;
+          console.log(this.goodslist);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   }
 };
