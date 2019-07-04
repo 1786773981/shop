@@ -90,42 +90,51 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li>
+              <li v-for="(cart,index) in cartList" :key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn check">
+                    <a
+                      href="javascipt:;"
+                      class="checkbox-btn item-check-btn"
+                      :class="{'check':cart.state==1}"
+                      @click="updateCart(cart.goods_id,'state')"
+                    >
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok" />
                       </svg>
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img src="static/1.jpg" />
+                    <img :src="cart.img2" />
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">XX</div>
+                    <div class="item-name">{{cart.title}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">1000</div>
+                  <div class="item-price">{{cart.price}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
-                        <span class="select-ipt">1</span>
-                        <a class="input-add">+</a>
+                        <a class="input-sub" @click="updateCart(cart.goods_id,'-')">-</a>
+                        <span class="select-ipt">{{cart.num}}</span>
+                        <a class="input-add" @click="updateCart(cart.goods_id,'jia')">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">100</div>
+                  <div class="item-price-total">{{cart.num*cart.price}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a
+                      href="javascript:;"
+                      class="item-edit-btn"
+                      @click="updateCart(cart.goods_id,'del')"
+                    >
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del" />
                       </svg>
@@ -153,10 +162,11 @@
             <div class="cart-foot-r">
               <div class="item-total">
                 总价:
-                <span class="total-price">500</span>
+                <span class="total-price">{{this.carttotal}}</span>
               </div>
               <div class="btn-wrap">
-                <a class="btn btn--red" onclick="location.href='address.html'">结算</a>
+                <!-- <a class="btn btn--red" onclick="location.href='address.html'">结算</a> -->
+                <a class="btn btn--red" @click="goAddress">结算</a>
               </div>
             </div>
           </div>
@@ -178,13 +188,80 @@ import "@/assets/css/login.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Bread from "@/components/Bread";
+import axios from "axios";
 
 export default {
-    components:{
-        Header,
-        Footer,
-        Bread
+  // 模型初始化完毕后发送数据请求
+  created() {
+    this.initData();
+  },
+
+  // 定义模型数据
+  data() {
+    return {
+      cartList: [], //存放商品列表数据
+      carttotal: 0 //计算商品总价
+    };
+  },
+
+  // 声明普通方法
+  methods: {
+    // 封装axios方法以便调用
+    initData() {
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/cart/index",
+        data: "userId=1"
+      })
+        .then(res => {
+          // 将请求到的数据存入模型中
+          this.cartList = res.data.data;
+          // 每次请求数据需要归零重新计算，否则会叠加
+          this.carttotal = 0;
+          for (let i = 0; i < this.cartList.length; i++) {
+            // state==1代表勾选商品才可加入计算
+            if (this.cartList[i].state == "1") {
+              this.carttotal += this.cartList[i].num * this.cartList[i].price;
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    // 更新购物车列表（+、-、勾选、删除）
+    updateCart(goodsId, state) {
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/cart/edit",
+        data: `userId=1&goodsId=${goodsId}&state=${state}`
+      })
+        .then(res => {
+          if (res.data.meta.state == 201) {
+            this.initData();
+          } else {
+            alert(res.data.meta.msg);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      this.initData();//再次调用请求数据
+    },
+
+    // 点击结算跳转address
+    goAddress() {
+      this.$router.push({ path: "/address" });
     }
+  },
+
+  // 激活组件
+  components: {
+    Header,
+    Footer,
+    Bread
+  }
 };
 </script>
  

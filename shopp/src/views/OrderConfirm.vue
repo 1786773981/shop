@@ -82,30 +82,30 @@
                 </ul>
               </div>
               <ul class="cart-item-list">
-                <li>
+                <li v-for="(cart,index) in cartList" :key="index">
                   <div class="cart-tab-1">
                     <div class="cart-item-pic">
-                      <img src="static/1.jpg" alt />
+                      <img :src="cart.img2" alt />
                     </div>
                     <div class="cart-item-title">
-                      <div class="item-name">小米6</div>
+                      <div class="item-name">{{cart.title}}</div>
                     </div>
                   </div>
                   <div class="cart-tab-2">
-                    <div class="item-price">2499</div>
+                    <div class="item-price">{{cart.price}}</div>
                   </div>
                   <div class="cart-tab-3">
                     <div class="item-quantity">
                       <div class="select-self">
                         <div class="select-self-area">
-                          <span class="select-ipt">×1</span>
+                          <span class="select-ipt">{{cart.num}}</span>
                         </div>
                       </div>
                       <div class="item-stock item-stock-no">数量</div>
                     </div>
                   </div>
                   <div class="cart-tab-4">
-                    <div class="item-price-total">2499</div>
+                    <div class="item-price-total">{{cart.num*cart.price}}</div>
                   </div>
                 </li>
               </ul>
@@ -118,7 +118,7 @@
               <ul>
                 <li class="order-total-price">
                   <span>总价</span>
-                  <span>1999</span>
+                  <span>{{this.carttotal}}</span>
                 </li>
               </ul>
             </div>
@@ -143,7 +143,44 @@
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
 
-export default {};
+// 引入组件
+import axios from "axios"
+
+export default {
+  // 模型初始化完毕请求数据
+  created(){
+    this.initData()
+  },
+  data(){
+    return{
+      cartList:[],
+      carttotal:0
+    }
+  },
+  methods:{
+    // 封装axios以便调用
+    initData(){
+      axios({
+        method:"post",
+        url:"http://118.31.9.103/api/cart/index",
+        data:`userId=1&isChoose=true`//isChoose代表Cart页面中已勾选的项
+      })
+      .then(res=>{
+        this.cartList=res.data.data;
+        this.carttotal = 0;
+          for (let i = 0; i < this.cartList.length; i++) {
+            // state==1代表勾选商品才可加入计算
+            if (this.cartList[i].state == "1") {
+              this.carttotal += this.cartList[i].num * this.cartList[i].price;
+            }
+          }
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+    }
+  }
+};
 </script>
  
 <style scoped>
