@@ -101,11 +101,15 @@
           <div class="addr-list-wrap">
             <div class="addr-list">
               <ul>
-                <li>
+                <li
+                  v-for="(address,index) in addressList"
+                  :key="index"
+                  @click="updateAddressDefault(address.id)"
+                >
                   <dl>
-                    <dt>XXX</dt>
-                    <dd class="address">朝阳公园</dd>
-                    <dd class="tel">10000000000</dd>
+                    <dt>{{address.nickname}}</dt>
+                    <dd class="address">{{address.province}}</dd>
+                    <dd class="tel">{{address.tel}}</dd>
                   </dl>
                   <div class="addr-opration addr-del">
                     <a href="javascript:;" class="addr-del-btn">
@@ -119,7 +123,7 @@
                       <i>设置</i>
                     </a>
                   </div>
-                  <div class="addr-opration addr-default">默认收货地址</div>
+                  <div class="addr-opration addr-default" v-if="address.default=='1'">默认收货地址</div>
                 </li>
                 <li class="addr-new">
                   <div class="add-new-inner">
@@ -146,7 +150,8 @@
           </div>
 
           <div class="next-btn-wrap">
-            <a class="btn btn--m btn--red" onclick="location.href='orderConfirm.html'">下一步</a>
+            <!-- <a class="btn btn--m btn--red" onclick="location.href='orderConfirm.html'">下一步</a> -->
+            <a class="btn btn--m btn--red" @click="goConfirm">下一步</a>
           </div>
         </div>
       </div>
@@ -159,7 +164,62 @@
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
 
-export default {};
+// 引入组件
+import axios from "axios";
+
+export default {
+  // 模型初始化完毕请求数据
+  created() {
+    this.initData();
+  },
+
+  // 定义模型数据
+  data() {
+    return {
+      addressList: []
+    };
+  },
+
+  // 声明普通方法
+  methods: {
+    // 点击下一步跳转orderConfirm
+    goConfirm() {
+      this.$router.push({ path: "/orderConfirm" });
+    },
+
+    // 封装axios以便调用
+    initData() {
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/address/index",
+        data: "userId=1"
+      })
+        .then(res => {
+          this.addressList = res.data.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    // 调用事件确定默认地址
+    updateAddressDefault(addressId) {
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/address/defaultAddress",
+        data: `userId=1&addressId=${addressId}`
+      })
+        .then(res => {
+          if (res.data.meta.state == 201) {
+            this.initData();
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
+};
 </script>
  
 <style scoped>

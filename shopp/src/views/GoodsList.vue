@@ -82,7 +82,7 @@
                     <div class="name">{{goods.title}}</div>
                     <div class="price">{{goods.price}}</div>
                     <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                      <a href="javascript:;" class="btn btn--m" @click="addCart(goods.id)">加入购物车</a>
                     </div>
                   </div>
                 </li>
@@ -123,15 +123,15 @@
  
 <script>
 // 引入css文件
-import "@/assets/css/base.css"
-import "@/assets/css/product.css"
+import "@/assets/css/base.css";
+import "@/assets/css/product.css";
 
 // 引入组件
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import Bread from "@/components/Bread"
-import Modal from "@/components/Modal"
-import axios from "axios"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Bread from "@/components/Bread";
+import Modal from "@/components/Modal";
+import axios from "axios";
 
 export default {
   created() {
@@ -141,6 +141,8 @@ export default {
   // 模型数据
   data() {
     return {
+      userId: "",
+      goodsId: "",
       minprice: "all", //最小价格
       maxprice: "all", //最大价格
       order: false, //排序
@@ -153,22 +155,47 @@ export default {
 
   // 声明普通方法
   methods: {
+
+    // addCart请求接口
+    addCart(goodsId) {
+      let userId = 1;
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/cart/create",
+        data: `userId=${userId}&goodsId=${goodsId}`
+      })
+        .then(res => {
+          if (res.data.meta.state == 201) {
+            // 状态码为201则显示加入购物车弹框
+            this.isCartOkShowFlag = true;
+          }else{
+            alert("res.data.meta.msg")
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
     // 价格筛选
     goodsWhere(minprice, maxprice) {
       this.minprice = minprice;
       this.maxprice = maxprice;
       this.initdata(); //重新发送请求
     },
+
     // 控制排序箭头
     goodsorder() {
       this.order = !this.order;
       this.initdata();
     },
+
     // 控制遮罩层
     closeModal() {
       this.isshow = false;
     },
-    // 封装axios
+
+    // 封装axios以便调用
     initdata() {
       let order = this.order ? "asc" : "desc";
       axios({
