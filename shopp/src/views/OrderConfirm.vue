@@ -129,7 +129,8 @@
               <!-- <button class="btn btn--m">Previous</button> -->
             </div>
             <div class="next-btn-wrap">
-              <button class="btn btn--m btn--red" onclick="location.href='orderSuccess.html'">创建订单</button>
+              <!-- <button class="btn btn--m btn--red" onclick="location.href='orderSuccess.html'">创建订单</button> -->
+              <button class="btn btn--m btn--red" @click="createOrder">创建订单</button>
             </div>
           </div>
         </div>
@@ -158,6 +159,26 @@ export default {
     }
   },
   methods:{
+    // 点击创建订单请求接口并跳转orderSuccess
+    createOrder() {
+      axios({
+        method:"post",
+        url:"http://118.31.9.103/api/order/create",
+        data:`userId=1`//通过userId得知打勾项，成功创建订单后在cart页移除打勾项
+      })
+      .then(res=>{
+          if(res.data.meta.state=="201"){
+            alert("订单创建成功！");
+            this.$router.push({ path: "/orderSuccess/"+res.data.data});//传递orderID订单编号
+          }else{
+            alert(res.data.meta.msg)
+          }
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+    },
+
     // 封装axios以便调用
     initData(){
       axios({
