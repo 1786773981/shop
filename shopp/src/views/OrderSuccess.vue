@@ -30,12 +30,12 @@
               <br />你的订单创建成功!
             </h3>
             <p>
-              <span>订单编号：100000001</span>
-              <span>订单总价：1000</span>
+              <span>订单编号：{{orderList.order_no}}</span>
+              <span>订单总价：{{orderList.total_price}}</span>
             </p>
             <div class="order-create-btn-wrap">
               <div class="btn-l-wrap">
-                <a href="javascript:;" class="btn btn--m">返回购物车</a>
+                <a href="javascript:;" class="btn btn--m" @click="goCart">返回购物车</a>
               </div>
               <div class="btn-r-wrap">
                 <a href="javascript:;" class="btn btn--m">订单列表</a>
@@ -53,7 +53,43 @@
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
 
-export default {};
+// 引入组件
+import axios from "axios";
+
+export default {
+  // 模型初始化完毕后请求接口
+  created() {
+    this.initData();
+  },
+  // 定义模型数据
+  data() {
+    return {
+      orderList: {} //订单详情数据
+    };
+  },
+  // 声明普通方法
+  methods: {
+    // 回到购物车页
+    goCart(){
+      this.$router.push({ path: "/cart" });
+    },
+    // 封装axios以便调用
+    initData() {
+      let orderId = this.$route.params.id;
+      axios({
+        url: "http://118.31.9.103/api/order/detail",
+        method: "post",
+        data: `userId=1&orderId=${orderId}`
+      })
+        .then(res => {
+          this.orderList = res.data.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
+};
 </script>
  
 <style scoped>
