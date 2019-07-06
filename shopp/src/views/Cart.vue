@@ -208,10 +208,11 @@ export default {
   methods: {
     // 封装axios方法以便调用
     initData() {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method: "post",
         url: "http://118.31.9.103/api/cart/index",
-        data: "userId=1"
+        data: `userId=${userId}`
       })
         .then(res => {
           // 将请求到的数据存入模型中
@@ -232,10 +233,11 @@ export default {
 
     // 更新购物车列表（+、-、勾选、删除）
     updateCart(goodsId, state) {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method: "post",
         url: "http://118.31.9.103/api/cart/edit",
-        data: `userId=1&goodsId=${goodsId}&state=${state}`
+        data: `userId=${userId}&goodsId=${goodsId}&state=${state}`
       })
         .then(res => {
           if (res.data.meta.state == 201) {

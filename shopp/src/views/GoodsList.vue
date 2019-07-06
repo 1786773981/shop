@@ -155,26 +155,30 @@ export default {
 
   // 声明普通方法
   methods: {
-
     // addCart请求接口
     addCart(goodsId) {
-      let userId = 1;
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/cart/create",
-        data: `userId=${userId}&goodsId=${goodsId}`
-      })
-        .then(res => {
-          if (res.data.meta.state == 201) {
-            // 状态码为201则显示加入购物车弹框
-            this.isCartOkShowFlag = true;
-          }else{
-            alert("res.data.meta.msg")
-          }
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
+      if (userId) {
+        //如果ID存在则发送请求否则弹框提示登录
+        axios({
+          method: "post",
+          url: "http://118.31.9.103/api/cart/create",
+          data: `userId=${userId}&goodsId=${goodsId}`
         })
-        .catch(error => {
-          console.log(error);
-        });
+          .then(res => {
+            if (res.data.meta.state == 201) {
+              // 状态码为201则显示加入购物车弹框
+              this.isCartOkShowFlag = true;
+            } else {
+              alert("res.data.meta.msg");
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } else {
+        this.isCartErrorShowFlag = true;
+      }
     },
 
     // 价格筛选

@@ -56,12 +56,15 @@
         <div class="navbar-right-container" style="display: flex;">
           <div class="navbar-menu-container">
             <!--<a href="/" class="navbar-link">我的账户</a>-->
-            <span class="navbar-link"></span>
+            <span class="navbar-link">{{this.nickName}}</span>
+            <a href="javascript:void(0)" class="navbar-link" v-if="nickName" @click="clearlogin">退出</a>
             <a
               href="javascript:void(0)"
               class="navbar-link"
-              @click="form.isLoginShowFlag=true">登录</a>
-            <a href="javascript:void(0)" class="navbar-link">退出</a>
+              @click="form.isLoginShowFlag=true"
+              v-else
+            >登录</a>
+
             <div class="navbar-cart-container">
               <span class="navbar-cart-count"></span>
               <a class="navbar-link navbar-cart-link" href="./cart.html">
@@ -119,18 +122,59 @@ import "@/assets/css/login.css";
 
 // 引入组件
 import Modal from "@/components/Modal";
+import axios from "axios";
+
 export default {
+  // 定义模型数据
   data() {
     return {
+      nickName: localStorage.getItem("userName"), //获取本地存储的用户名
       form: { isLoginShowFlag: false, error: "", username: "", password: "" }
     };
   },
+
+  //声明普通方法
   methods: {
+    // 关闭登录框
     closeModal() {
       this.form.isLoginShowFlag = false;
     },
-    login() {}
+
+    //点击退出，退出登录并清除本地存储
+    clearlogin() {
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      this.nickName = "";
+    },
+
+    // 点击登录进行数据处理
+    login() {
+      this.form.error = ""; //每次点击登录重新发送请求后清空报错信息
+      axios({
+        method: "post",
+        url: "http://118.31.9.103/api/login/login",
+        data: `username=${this.form.username}&password=${this.form.password}`
+      })
+        .then(res => {
+          if (res.data.meta.state == 200) {
+            //本地存储数据
+            localStorage.setItem("userId", res.data.data.id);
+            localStorage.setItem("userName", res.data.data.username);
+            //登陆成功后重新赋值nickName并关闭登录框
+            this.nickName=localStorage.getItem("userName");
+            this.form.isLoginShowFlag = false;
+          } else {
+            //登录失败显示报错信息
+            this.form.error = res.data.meta.msg;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
   },
+
+  // 激活子组件
   components: {
     Modal
   }
