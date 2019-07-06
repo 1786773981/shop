@@ -189,10 +189,11 @@ export default {
 
     // 封装axios以便调用
     initData() {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method: "post",
         url: "http://118.31.9.103/api/address/index",
-        data: "userId=1"
+        data: `userId=${userId}`
       })
         .then(res => {
           this.addressList = res.data.data;
@@ -204,10 +205,11 @@ export default {
 
     // 调用事件确定默认地址
     updateAddressDefault(addressId) {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method: "post",
         url: "http://118.31.9.103/api/address/defaultAddress",
-        data: `userId=1&addressId=${addressId}`
+        data: `userId=${userId}&addressId=${addressId}`
       })
         .then(res => {
           if (res.data.meta.state == 201) {

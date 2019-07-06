@@ -161,10 +161,11 @@ export default {
   methods:{
     // 点击创建订单请求接口并跳转orderSuccess
     createOrder() {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method:"post",
         url:"http://118.31.9.103/api/order/create",
-        data:`userId=1`//通过userId得知打勾项，成功创建订单后在cart页移除打勾项
+        data:`userId=${userId}`//通过userId得知打勾项，成功创建订单后在cart页移除打勾项
       })
       .then(res=>{
           if(res.data.meta.state=="201"){
@@ -181,10 +182,11 @@ export default {
 
     // 封装axios以便调用
     initData(){
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       axios({
         method:"post",
         url:"http://118.31.9.103/api/cart/index",
-        data:`userId=1&isChoose=true`//isChoose代表Cart页面中已勾选的项
+        data:`userId=${userId}&isChoose=true`//isChoose代表Cart页面中已勾选的项
       })
       .then(res=>{
         this.cartList=res.data.data;

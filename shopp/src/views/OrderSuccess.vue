@@ -75,11 +75,12 @@ export default {
     },
     // 封装axios以便调用
     initData() {
+      let userId = localStorage.getItem("userId"); //获取本地存储的userId
       let orderId = this.$route.params.id;
       axios({
         url: "http://118.31.9.103/api/order/detail",
         method: "post",
-        data: `userId=1&orderId=${orderId}`
+        data: `userId=${userId}&orderId=${orderId}`
       })
         .then(res => {
           this.orderList = res.data.data;
