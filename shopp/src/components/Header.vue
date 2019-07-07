@@ -123,6 +123,7 @@ import "@/assets/css/login.css";
 // 引入组件
 import Modal from "@/components/Modal";
 import axios from "axios";
+import {loginLoginApi } from "@/api/index.js";
 
 export default {
   // 定义模型数据
@@ -150,27 +151,23 @@ export default {
     // 点击登录进行数据处理
     login() {
       this.form.error = ""; //每次点击登录重新发送请求后清空报错信息
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/login/login",
-        data: `username=${this.form.username}&password=${this.form.password}`
+      loginLoginApi({
+        username:this.form.username,
+        password:this.form.password
       })
         .then(res => {
-          if (res.data.meta.state == 200) {
+          if (res.meta.state == 200) {
             //本地存储数据
-            localStorage.setItem("userId", res.data.data.id);
-            localStorage.setItem("userName", res.data.data.username);
+            localStorage.setItem("userId", res.data.id);
+            localStorage.setItem("userName", res.data.username);
             //登陆成功后重新赋值nickName并关闭登录框
             this.nickName=localStorage.getItem("userName");
             this.form.isLoginShowFlag = false;
           } else {
             //登录失败显示报错信息
-            this.form.error = res.data.meta.msg;
+            this.form.error = res.meta.msg;
           }
         })
-        .catch(error => {
-          console.log(error);
-        });
     }
   },
 

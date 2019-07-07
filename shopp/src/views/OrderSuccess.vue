@@ -52,6 +52,7 @@
 // 引入css
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
+import {orderDetailApi } from "@/api/index.js";
 
 // 引入组件
 import axios from "axios";
@@ -73,21 +74,18 @@ export default {
     goCart(){
       this.$router.push({ path: "/cart" });
     },
-    // 封装axios以便调用
+    // 封装axios以便调用（请求接口数据渲染订单详情页）
     initData() {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
       let orderId = this.$route.params.id;
-      axios({
-        url: "http://118.31.9.103/api/order/detail",
-        method: "post",
-        data: `userId=${userId}&orderId=${orderId}`
+      orderDetailApi({
+        // 传参用户ID以及订单ID
+        userId: userId,
+        orderId:orderId
       })
         .then(res => {
-          this.orderList = res.data.data;
+          this.orderList = res.data;
         })
-        .catch(error => {
-          console.log(error);
-        });
     }
   }
 };

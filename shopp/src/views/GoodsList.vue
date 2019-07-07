@@ -115,8 +115,8 @@
       </template>
     </Modal>
     <!-- 加入购物车按钮 -->
-    <input type="button" value="加入购物车弹框1" @click="isCartErrorShowFlag=true" />
-    <input type="button" value="加入购物车弹框2" @click="isCartOkShowFlag=true" />
+    <!-- <input type="button" value="加入购物车弹框1" @click="isCartErrorShowFlag=true" />
+    <input type="button" value="加入购物车弹框2" @click="isCartOkShowFlag=true" />-->
     <Footer></Footer>
   </div>
 </template>
@@ -132,6 +132,7 @@ import Footer from "@/components/Footer";
 import Bread from "@/components/Bread";
 import Modal from "@/components/Modal";
 import axios from "axios";
+import { goodsIndexApi, cartCreateApi } from "@/api/index.js";
 
 export default {
   created() {
@@ -155,27 +156,23 @@ export default {
 
   // 声明普通方法
   methods: {
-    // addCart请求接口
+    // 调用addCart方法，请求接口数据添增加入购物车效果
     addCart(goodsId) {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
       if (userId) {
         //如果ID存在则发送请求否则弹框提示登录
-        axios({
-          method: "post",
-          url: "http://118.31.9.103/api/cart/create",
-          data: `userId=${userId}&goodsId=${goodsId}`
-        })
-          .then(res => {
-            if (res.data.meta.state == 201) {
-              // 状态码为201则显示加入购物车弹框
-              this.isCartOkShowFlag = true;
-            } else {
-              alert("res.data.meta.msg");
-            }
-          })
-          .catch(error => {
-            console.log(error);
-          });
+        cartCreateApi({
+          // 传参用户ID与商品ID
+          userId: userId,
+          goodsId: goodsId
+        }).then(res => {
+          if (res.meta.state == 201) {
+            // 状态码为201则显示加入购物车弹框
+            this.isCartOkShowFlag = true;
+          } else {
+            alert(res.meta.msg);
+          }
+        });
       } else {
         this.isCartErrorShowFlag = true;
       }
@@ -199,19 +196,17 @@ export default {
       this.isshow = false;
     },
 
-    // 封装axios以便调用
+    // 封装axios以便调用（请求接口数据渲染首页商品列表）
     initdata() {
       let order = this.order ? "asc" : "desc";
-      axios({
-        method: "get",
-        url: `http://118.31.9.103//api/goods/index?order=${order}&minprice=${this.minprice}&maxprice=${this.maxprice}`
-      })
-        .then(res => {
-          this.goodslist = res.data.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      goodsIndexApi({
+        //传参排序方式以及最小价格最大价格
+        order: order,
+        minprice: this.minprice,
+        maxprice: this.maxprice
+      }).then(res => {
+        this.goodslist = res.data;//将数据存入模型中
+      });
     }
   },
 

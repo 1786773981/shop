@@ -143,64 +143,56 @@
 // 引入css
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
+import { cartIndexApi, orderCreateApi } from "@/api/index.js";
 
 // 引入组件
-import axios from "axios"
+import axios from "axios";
 
 export default {
   // 模型初始化完毕请求数据
-  created(){
-    this.initData()
+  created() {
+    this.initData();
   },
-  data(){
-    return{
-      cartList:[],
-      carttotal:0
-    }
+  data() {
+    return {
+      cartList: [],
+      carttotal: 0
+    };
   },
-  methods:{
-    // 点击创建订单请求接口并跳转orderSuccess
+  methods: {
+    // 调用createOrder方法，请求接口数据创建订单并跳转orderSuccess
     createOrder() {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method:"post",
-        url:"http://118.31.9.103/api/order/create",
-        data:`userId=${userId}`//通过userId得知打勾项，成功创建订单后在cart页移除打勾项
-      })
-      .then(res=>{
-          if(res.data.meta.state=="201"){
-            alert("订单创建成功！");
-            this.$router.push({ path: "/orderSuccess/"+res.data.data});//传递orderID订单编号
-          }else{
-            alert(res.data.meta.msg)
-          }
-      })
-      .catch(error=>{
-        console.log(error)
-      })
+      orderCreateApi({
+        // 传参用户ID
+        userId: userId
+      }).then(res => {
+        if (res.meta.state == "201") {
+          alert("订单创建成功！");
+          this.$router.push({ path: "/orderSuccess/" + res.data }); //传递orderID订单编号
+        } else {
+          alert(res.meta.msg);
+        }
+      });
     },
 
-    // 封装axios以便调用
-    initData(){
+    // 封装axios以便调用（请求接口数据渲染订单确认页）
+    initData() {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method:"post",
-        url:"http://118.31.9.103/api/cart/index",
-        data:`userId=${userId}&isChoose=true`//isChoose代表Cart页面中已勾选的项
-      })
-      .then(res=>{
-        this.cartList=res.data.data;
+      cartIndexApi({
+        // 传参用户ID以及打勾项
+        userId: userId,
+        isChoose: true
+      }).then(res => {
+        this.cartList = res.data;
         this.carttotal = 0;
-          for (let i = 0; i < this.cartList.length; i++) {
-            // state==1代表勾选商品才可加入计算
-            if (this.cartList[i].state == "1") {
-              this.carttotal += this.cartList[i].num * this.cartList[i].price;
-            }
+        for (let i = 0; i < this.cartList.length; i++) {
+          // state==1代表勾选商品才可加入计算
+          if (this.cartList[i].state == "1") {
+            this.carttotal += this.cartList[i].num * this.cartList[i].price;
           }
-      })
-      .catch(error=>{
-        console.log(error)
-      })
+        }
+      });
     }
   }
 };

@@ -189,6 +189,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Bread from "@/components/Bread";
 import axios from "axios";
+import { cartIndexApi, cartEditApi } from "@/api/index.js";
 
 export default {
   // 模型初始化完毕后发送数据请求
@@ -206,17 +207,15 @@ export default {
 
   // 声明普通方法
   methods: {
-    // 封装axios方法以便调用
+    // 封装axios方法以便调用（请求接口数据渲染购物车列表）
     initData() {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/cart/index",
-        data: `userId=${userId}`
-      })
-        .then(res => {
+      cartIndexApi({
+        // 传参用户ID
+        userId:userId
+      }).then(res => {
           // 将请求到的数据存入模型中
-          this.cartList = res.data.data;
+          this.cartList = res.data;
           // 每次请求数据需要归零重新计算，否则会叠加
           this.carttotal = 0;
           for (let i = 0; i < this.cartList.length; i++) {
@@ -226,29 +225,23 @@ export default {
             }
           }
         })
-        .catch(error => {
-          console.log(error);
-        });
     },
 
-    // 更新购物车列表（+、-、勾选、删除）
+    // 调用updateCart方法，更新购物车列表（+、-、勾选、删除）
     updateCart(goodsId, state) {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/cart/edit",
-        data: `userId=${userId}&goodsId=${goodsId}&state=${state}`
-      })
-        .then(res => {
-          if (res.data.meta.state == 201) {
+      cartEditApi({
+        // 传参用户ID、商品ID以及state参数
+        userId:userId,
+        goodsId:goodsId,
+        state:state
+      }).then(res => {
+          if (res.meta.state == 201) {
             this.initData();
           } else {
-            alert(res.data.meta.msg);
+            alert(res.meta.msg);
           }
         })
-        .catch(error => {
-          console.log(error);
-        });
       this.initData();//再次调用请求数据
     },
 

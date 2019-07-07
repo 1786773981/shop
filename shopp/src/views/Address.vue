@@ -163,6 +163,7 @@
 // 引入css
 import "@/assets/css/base.css";
 import "@/assets/css/checkout.css";
+import { addressIndexApi, defaultAddressApi } from "@/api/index.js";
 
 // 引入组件
 import axios from "axios";
@@ -190,35 +191,26 @@ export default {
     // 封装axios以便调用
     initData() {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/address/index",
-        data: `userId=${userId}`
-      })
-        .then(res => {
-          this.addressList = res.data.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      addressIndexApi({
+        // 传参用户ID
+        userId: userId
+      }).then(res => {
+        this.addressList = res.data;
+      });
     },
 
     // 调用事件确定默认地址
     updateAddressDefault(addressId) {
       let userId = localStorage.getItem("userId"); //获取本地存储的userId
-      axios({
-        method: "post",
-        url: "http://118.31.9.103/api/address/defaultAddress",
-        data: `userId=${userId}&addressId=${addressId}`
-      })
-        .then(res => {
-          if (res.data.meta.state == 201) {
-            this.initData();
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      defaultAddressApi({
+        // 传参用户ID以及收获地址ID
+        userId: userId,
+        addressId: addressId
+      }).then(res => {
+        if (res.meta.state == 201) {
+          this.initData();
+        }
+      });
     }
   }
 };
